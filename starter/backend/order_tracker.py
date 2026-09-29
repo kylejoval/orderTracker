@@ -14,16 +14,39 @@ class OrderTracker:
         self.storage = storage
 
     def add_order(self, order_id: str, item_name: str, quantity: int, customer_id: str, status: str = "pending"):
-        pass
+        # This is the new logic
+        if self.storage.get_order(order_id):
+            raise ValueError(f"Order with ID '{order_id}' already exists.")
+
+        order = {
+            "order_id": order_id,
+            "item_name": item_name,
+            "quantity": quantity,
+            "customer_id": customer_id,
+            "status": status
+        }
+        self.storage.save_order(order_id, order)
 
     def get_order_by_id(self, order_id: str):
-        pass
+        return self.storage.get_order(order_id)
 
     def update_order_status(self, order_id: str, new_status: str):
-        pass
+        order = self.storage.get_order(order_id)
+
+        if order is None:
+            raise ValueError(f"Order with ID '{order_id}' not found.")
+
+        order["status"] = new_status
+        self.storage.save_order(order_id, order)
+        return order
 
     def list_all_orders(self):
-        pass
+        return self.storage.get_all_orders()
 
     def list_orders_by_status(self, status: str):
-        pass
+        orders = self.storage.get_all_orders()
+        return [
+            order
+            for order in orders.values()
+            if order.get("status") == status
+        ]
